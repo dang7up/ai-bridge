@@ -2,11 +2,16 @@
 build:
 	npm run build
 
+build-public:
+	mv src/adapters/private .
+	npm run build
+	mv private src/adapters/
+
 install: build
 	npm link @love-moon/ai-bridge
 
 uninstall:
 	npm unlink -g @love-moon/ai-bridge
 
-publish: build
+publish: build-public
 	bash scripts/publish-npm.sh
