@@ -1,6 +1,6 @@
 # AI Bridge 🌉
 
-> Seamless AI tool session migration, one command away.
+>  Break down tool barriers, let your AI sessions flow freely.
 
 AI Bridge lets you migrate session history between different AI coding tools. Halfway through a conversation in Claude and want to switch to Codex? No problem.
 
@@ -13,7 +13,7 @@ AI Bridge lets you migrate session history between different AI coding tools. Ha
 
 ## 🚀 Quick Start
 
-### Global Installation
+### Installation
 
 ```bash
 npm install -g @love-moon/ai-bridge
@@ -28,18 +28,6 @@ ai-bridge --from claude:abc123 --to codex
 ai-bridge --list-session claude
 ```
 
-### Build from Source
-
-```bash
-git clone <repo>
-cd ai-bridge
-npm install
-npm run build
-
-# Use local build
-node ./dist/index.js --list-backend
-```
-
 ## 🛠️ Supported Backends
 
 | Backend | Read | Write |
@@ -48,8 +36,6 @@ node ./dist/index.js --list-backend
 | Codex | ✅ | ✅ |
 | Copilot | ✅ | ✅ |
 | Kimi | ✅ | ✅ |
-| Trae | ✅ | ✅ |
-| TraeCLI | ✅ | - |
 
 ## 📖 Documentation
 
@@ -88,7 +74,3 @@ npm run build
 # Or specify version
 ./scripts/publish-npm.sh 0.2.0
 ```
-
----
-
-**AI Bridge** - Break down tool barriers, let your AI sessions flow freely.
