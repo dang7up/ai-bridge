@@ -1,0 +1,42 @@
+import { homedir } from "node:os";
+import { join } from "node:path";
+import { readdir } from "node:fs/promises";
+import { fileExists } from "../../utils/fs.js";
+
+/** Root directory where Claude stores per-project data. */
+export const CLAUDE_BASE = join(homedir(), ".claude", "projects");
+
+/**
+ * List all encoded-path directories under ~/.claude/projects/.
+ * Returns absolute paths to each project directory.
+ */
+export async function listProjectDirs(): Promise<string[]> {
+  try {
+    const entries = await readdir(CLAUDE_BASE, { withFileTypes: true });
+    return entries
+      .filter((e) => e.isDirectory())
+      .map((e) => join(CLAUDE_BASE, e.name));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Find all sessions-index.json files across every project directory.
+ * Returns an array of { indexPath, projectDir } objects.
+ */
+export async function findSessionIndexes(): Promise<
+  { indexPath: string; projectDir: string }[]
+> {
+  const dirs = await listProjectDirs();
+  const results: { indexPath: string; projectDir: string }[] = [];
+
+  for (const dir of dirs) {
+    const indexPath = join(dir, "sessions-index.json");
+    if (await fileExists(indexPath)) {
+      results.push({ indexPath, projectDir: dir });
+    }
+  }
+
+  return results;
+}

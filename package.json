@@ -1,0 +1,23 @@
+{
+  "name": "ai-bridge",
+  "version": "0.1.0",
+  "description": "Cross-AI-Tool Session Sharing CLI",
+  "type": "module",
+  "bin": {
+    "ai-bridge": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "tsup": "^8.4.0",
+    "@types/node": "^22.0.0"
+  }
+}
