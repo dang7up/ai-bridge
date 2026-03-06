@@ -249,17 +249,9 @@ export class CodexAdapter implements ToolAdapter {
               break;
             }
           }
-          // If no prior assistant message, store as a standalone assistant
-          // message with empty content and thinking filled in.
-          if (!entries.some((e) => e.type === "assistant_message")) {
-            entries.push({
-              type: "assistant_message",
-              timestamp: line.timestamp,
-              content: "",
-              thinking: thinkingText,
-              model,
-            } satisfies IRAssistantMessage);
-          }
+          // If no prior assistant message, skip this reasoning.
+          // It will be picked up by the following agent_reasoning handler
+          // or lost if there's no subsequent assistant message.
         }
         break;
       }
@@ -298,14 +290,8 @@ export class CodexAdapter implements ToolAdapter {
               return;
             }
           }
-          // No prior assistant message — create a placeholder.
-          entries.push({
-            type: "assistant_message",
-            timestamp: line.timestamp,
-            content: "",
-            thinking: text,
-            model,
-          } satisfies IRAssistantMessage);
+          // No prior assistant message — skip.
+          // The reasoning will be picked up by the following assistant message.
         }
         break;
       }
