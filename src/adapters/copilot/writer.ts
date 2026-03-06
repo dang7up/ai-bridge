@@ -2,9 +2,10 @@ import { join } from "node:path";
 import { writeFile } from "node:fs/promises";
 import YAML from "yaml";
 
-import type { IREntry } from "../../types.js";
+import type { IREntry, IRSessionMeta } from "../../types.js";
 import { ensureDir, writeJsonl } from "../../utils/fs.js";
 import { uuid, isoNow } from "../../utils/id.js";
+import { getAdapter, listSupportedTools } from "../registry.js";
 import { COPILOT_BASE } from "./utils.js";
 import type { CopilotEvent, CopilotWorkspace } from "./utils.js";
 
@@ -50,6 +51,7 @@ export async function writeCopilotSession(
 
   const events = convertToEvents(entries, sessionId, targetCwd);
   await writeJsonl(join(sessionDir, "events.jsonl"), events);
+  await mirrorToAiden(entries, targetCwd, sessionId);
 
   return sessionId;
 }
@@ -220,6 +222,43 @@ function convertToEvents(
   }
 
   return events;
+}
+
+async function mirrorToAiden(
+  entries: IREntry[],
+  targetCwd: string,
+  sessionId: string,
+): Promise<void> {
+  const tools = await listSupportedTools();
+  if (!tools.includes("aiden")) return;
+
+  const aidenEntries = withSessionId(entries, sessionId, targetCwd);
+  const aidenAdapter = await getAdapter("aiden");
+  await aidenAdapter.write(aidenEntries, targetCwd);
+}
+
+function withSessionId(entries: IREntry[], sessionId: string, cwd: string): IREntry[] {
+  const metaIndex = entries.findIndex((entry) => entry.type === "session_meta");
+  if (metaIndex === -1) {
+    const syntheticMeta: IRSessionMeta = {
+      ir_version: "1",
+      type: "session_meta",
+      source_tool: "copilot",
+      source_session_id: sessionId,
+      cwd,
+      created_at: isoNow(),
+    };
+    return [syntheticMeta, ...entries];
+  }
+
+  return entries.map((entry, index) => {
+    if (index !== metaIndex || entry.type !== "session_meta") return entry;
+    return {
+      ...entry,
+      source_session_id: sessionId,
+      cwd: entry.cwd || cwd,
+    } satisfies IRSessionMeta;
+  });
 }
 
 /** Try to parse a JSON string; return the original string if it fails. */
